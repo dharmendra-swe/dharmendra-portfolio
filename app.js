@@ -1,127 +1,124 @@
-/* ----- NAVIGATION BAR FUNCTION ----- */
-function myMenuFunction(){
-    var menuBtn = document.getElementById("myNavMenu");
+const resumeLink = 'https://drive.google.com/drive/folders/1rM6Wv2hZxs5wKrRYjK3mJHoiCQEGvVIn?usp=drive_link';
 
-    if(menuBtn.className === "nav-menu"){
-      menuBtn.className += " responsive";
-    } else {
-      menuBtn.className = "nav-menu";
-    }
-  }
-
-/* ----- ADD SHADOW ON NAVIGATION BAR WHILE SCROLLING ----- */
-  window.onscroll = function() {headerShadow()};
-
-  function headerShadow() {
-    const navHeader =document.getElementById("header");
-
-    if (document.body.scrollTop > 50 || document.documentElement.scrollTop >  50) {
-
-      navHeader.style.boxShadow = "0 1px 6px rgba(0, 0, 0, 0.1)";
-      navHeader.style.height = "70px";
-      navHeader.style.lineHeight = "70px";
-
-    } else {
-
-      navHeader.style.boxShadow = "none";
-      navHeader.style.height = "90px";
-      navHeader.style.lineHeight = "90px";
-
-    }
-  }
-
-/* ----- TYPING EFFECT ----- */
- var typingEffect = new Typed(".typedText",{
-    strings : ["Tech Enthusiast","Web Developer"],
-    loop : true,
-    typeSpeed : 100, 
-    backSpeed : 80,
-    backDelay : 2000
- })
-
-/* ----- ## -- SCROLL REVEAL ANIMATION -- ## ----- */
- const sr = ScrollReveal({
-        origin: 'top',
-        distance: '80px',
-        duration: 2000,
-        reset: true     
- })
-
-/* -- HOME -- */
-sr.reveal('.featured-text-card',{})
-sr.reveal('.featured-name',{delay: 100})
-sr.reveal('.featured-text-info',{delay: 200})
-sr.reveal('.featured-text-btn',{delay: 200})
-sr.reveal('.social_icons',{delay: 200})
-sr.reveal('.featured-image',{delay: 300})
-
-
-/* -- PROJECT BOX -- */
-sr.reveal('.project-box',{interval: 200})
-
-/* -- HEADINGS -- */
-sr.reveal('.top-header',{})
-
-/* ----- ## -- SCROLL REVEAL LEFT_RIGHT ANIMATION -- ## ----- */
-
-/* -- ABOUT INFO & CONTACT INFO -- */
-const srLeft = ScrollReveal({
-  origin: 'left',
-  distance: '80px',
-  duration: 2000,
-  reset: true
-});
-
-srLeft.reveal('.about-info',{delay: 100})
-srLeft.reveal('.contact-info',{delay: 100})
-
-/* -- ABOUT SKILLS & FORM BOX -- */
-const srRight = ScrollReveal({
-  origin: 'right',
-  distance: '80px',
-  duration: 2000,
-  reset: true
-});
-
-srRight.reveal('.skills-box',{delay: 100});
-srRight.reveal('.form-control',{delay: 100});
-
-
-
-/* ----- CHANGE ACTIVE LINK ----- */
-
-const sections = document.querySelectorAll('section[id]');
-
-function scrollActive() {
-  const scrollY = window.scrollY;
-
-  sections.forEach(current =>{
-    const sectionHeight = current.offsetHeight,
-        sectionTop = current.offsetTop - 50,
-      sectionId = current.getAttribute('id')
-
-    if(scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) { 
-
-        document.querySelector('.nav-menu a[href*=' + sectionId + ']').classList.add('active-link');
-
-    }  else {
-
-      document.querySelector('.nav-menu a[href*=' + sectionId + ']').classList.remove('active-link');
-
-    }
-  })
+function myMenuFunction() {
+    const menu = document.getElementById('myNavMenu');
+    const toggle = document.getElementById('menuToggle');
+    menu.classList.toggle('responsive');
+    const isOpen = menu.classList.contains('responsive');
+    toggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+    toggle.innerHTML = isOpen ? '<i class="uil uil-times"></i>' : '<i class="uil uil-bars"></i>';
 }
 
-window.addEventListener('scroll', scrollActive);
-
-
-// Resume downloadable link function
 function resumeDownload() {
-  let resumeLink = "https://drive.google.com/file/d/1sQyLqV3SVpM9oz09vIzqofcJ5IKMJV3K/view";
-  window.location.href = resumeLink;
+    window.open(resumeLink, '_blank', 'noopener,noreferrer');
 }
-//  For Hiring me 
-function hireMe(){
-  let sendRespond = "hire-me.html";
-  window.location.href = sendRespond;
+
+function hireMe() {
+    window.location.href = 'hire-me.html';
 }
+
+const header = document.getElementById('header');
+const progress = document.getElementById('scrollProgress');
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+function updateScrollUI() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progressWidth = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progress.style.width = `${progressWidth}%`;
+
+    header.classList.toggle('shadow-[0_20px_60px_rgba(0,0,0,0.28)]', scrollTop > 40);
+
+    sections.forEach((section) => {
+        const top = section.offsetTop - 120;
+        const bottom = top + section.offsetHeight;
+        const id = section.getAttribute('id');
+
+        if (scrollTop >= top && scrollTop < bottom) {
+            navLinks.forEach((link) => {
+                link.classList.toggle('active-link', link.getAttribute('href') === `#${id}`);
+            });
+        }
+    });
+}
+
+window.addEventListener('scroll', updateScrollUI, { passive: true });
+window.addEventListener('load', updateScrollUI);
+
+navLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+        const menu = document.getElementById('myNavMenu');
+        if (menu.classList.contains('responsive')) {
+            myMenuFunction();
+        }
+    });
+});
+
+const revealTargets = document.querySelectorAll('.section-shell, .project-card, .skill-card, .service-card, .stat-card, .fade-up');
+revealTargets.forEach((target) => target.classList.add('reveal'));
+
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: 0.14
+});
+
+revealTargets.forEach((target) => revealObserver.observe(target));
+
+const counters = document.querySelectorAll('[data-count]');
+let countersStarted = false;
+
+function animateCounters() {
+    if (countersStarted) return;
+    countersStarted = true;
+
+    counters.forEach((counter) => {
+        const target = Number(counter.dataset.count);
+        const isDecimal = !Number.isInteger(target);
+        const duration = 1400;
+        const start = performance.now();
+
+        function tick(now) {
+            const progressValue = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progressValue, 3);
+            const value = target * eased;
+            counter.textContent = isDecimal ? value.toFixed(1) : Math.round(value);
+
+            if (progressValue < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                counter.textContent = isDecimal ? target.toFixed(1) : target;
+            }
+        }
+
+        requestAnimationFrame(tick);
+    });
+}
+
+const statsSection = document.querySelector('.stat-card');
+if (statsSection) {
+    const statsObserver = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+            animateCounters();
+            statsObserver.disconnect();
+        }
+    }, { threshold: 0.4 });
+
+    statsObserver.observe(statsSection);
+}
+
+const cursorGlow = document.getElementById('cursorGlow');
+window.addEventListener('pointermove', (event) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    cursorGlow.style.opacity = '1';
+    cursorGlow.style.left = `${event.clientX}px`;
+    cursorGlow.style.top = `${event.clientY}px`;
+}, { passive: true });
+
+document.getElementById('year').textContent = new Date().getFullYear();
